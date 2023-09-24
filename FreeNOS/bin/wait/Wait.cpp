@@ -3,7 +3,7 @@
 #include <string.h>
 #include <errno.h>
 #include <unistd.h>
-#include <wait.h>
+#include "Wait.h"
 
 Wait::Wait(int argc, char **argv)
  : POSIXApplication(argc, argv)
