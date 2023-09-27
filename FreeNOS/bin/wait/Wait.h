@@ -5,7 +5,14 @@
 Class Wait : public POSIXApplication
 {
   public:
+    //Constructor
   	Wait(int argc, char **argv);
+
+  	//Destructor
+  	virtual ~Wait();
+
+  	//Execute the application
+  	virtual Result exec()
   	
  }
  #endif
