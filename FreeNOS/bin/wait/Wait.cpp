@@ -9,8 +9,13 @@ Wait::Wait(int argc, char **argv)
  : POSIXApplication(argc, argv)
 {
     //parser
+    parser().setDescription("Suspends execution of the calling process until one of its children terminates.");
+    parser().registerPositions("PROCESS_ID", "Suspend execution until ...");
 }
 
 Wait::Result Wait::exec(){
-    return success
+    //Done
+    return Success
+
 }
+
