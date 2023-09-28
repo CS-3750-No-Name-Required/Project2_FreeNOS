@@ -13,7 +13,26 @@ Wait::Wait(int argc, char **argv)
     parser().registerPositions("PROCESS_ID", "Suspend execution until ...");
 }
 
+Wait::~Wait()
+{
+}
+
 Wait::Result Wait::exec(){
+//similar to Sleep.cpp
+    int pid = 0;
+    if ((pid = atoi(argument().get("PROCESS_ID"))) <= 0)
+    {
+        ERROR("invalid pid `" << arguments().get("PROCESS_ID") << "'");
+        return InvalidArgument;
+    }
+
+    //Wait now
+    if(waitpid(pid, 0, 0) != 0)
+    {
+        ERROR("failed to wait: " << strerror(errno));
+        return IOError
+    }
+
     //Done
     return Success
 
