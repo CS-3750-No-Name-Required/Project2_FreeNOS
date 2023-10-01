@@ -23,20 +23,20 @@ Wait::~Wait()
 }
 
 Wait::Result Wait::exec(){
-    //similar to Sleep.cpp
-    int pid = 0;
-    if ((pid = atoi(argument().get("PROCESS_ID"))) <= 0)
-    {
+    //similar to Sleep.cpp & ProcessList.cpp
+    ProcessClient process;
+    ProcessID pid = atoi(arguments().get("PROCESS_ID")); //gets the process id in value type pid_t. atoi turns str into int
+    ProcessClient::Info info;
+    ProcessClient::Result result = process.processInfo(pid, info); 
+    if(result==ProcessClient::Success){
+        //instead of printing out the table it will run waitpid 
+        //lib > libpoisx > sys > wait> waitpid 
+        waitpid(pid, 0,0);
+    }else{
         ERROR("invalid pid `" << arguments().get("PROCESS_ID") << "'");
         return InvalidArgument;
     }
-
-    //Wait now
-    if(waitpid(pid, 0, 0) != 0)
-    {
-        ERROR("failed to wait: " << strerror(errno));
-        return IOError
-    }
+    
     //Done
     return Success;
 
