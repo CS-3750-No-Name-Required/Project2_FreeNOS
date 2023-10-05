@@ -118,7 +118,14 @@ class Process
      * @return Reference to memory shares.
      */
     ProcessShares & getShares();
-
+    
+    /**
+     * Get process shares.
+     *
+     * @return Reference to memory shares.
+     */
+     uint getPriority() const;
+     
     /**
      * Retrieves the current state.
      *
@@ -272,6 +279,9 @@ class Process
 
     /** Number of wakeups received */
     Size m_wakeups;
+    
+    /** U8 priority level*/
+    uint m_priority;
 
     /**
      * Sleep timer value.
