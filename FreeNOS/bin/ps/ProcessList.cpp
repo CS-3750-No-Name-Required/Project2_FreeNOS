@@ -22,6 +22,8 @@
 #include <ProcessClient.h>
 #include "ProcessList.h"
 
+// add priority level here
+
 ProcessList::ProcessList(int argc, char **argv)
     : POSIXApplication(argc, argv)
 {
