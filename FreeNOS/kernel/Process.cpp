@@ -58,15 +58,6 @@ Process::~Process()
     }
 }
 
-
-friend Process operator<(Process const& other) {
-    return m_priority < other.getPriority();
-}
-
-friend Process operator>(Process const& other) {
-    return m_priority > other.getPriority();
-}
-
 ProcessID Process::getID() const
 {
     return m_id;
