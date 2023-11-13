@@ -91,8 +91,8 @@ class Process
     /**
      * Comparison operator overloads.
      */
-    friend Process operator<(Process const& other);
-    friend Process operator>(Process const& other);
+    bool operator>(const Process& other);
+    bool operator<(const Process& other);
 
     /**
      * Retrieve our ID number.
