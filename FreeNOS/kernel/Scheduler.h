@@ -24,7 +24,6 @@
 #include <Queue.h>
 #include "Process.h"
 #include "ProcessManager.h"
-#include <queue>
 
 /**
  * @addtogroup kernel
@@ -91,7 +90,7 @@ class Scheduler
   private:
 
     /** Contains processes ready to run */
-    std::priority_queue<Process, std::vector<Process>, std::greater<Process>> m_queue;
+    Queue<Process *, MAX_PROCS> m_queue;
 };
 
 /**

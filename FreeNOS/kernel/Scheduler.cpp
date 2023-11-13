@@ -26,7 +26,7 @@ Scheduler::Scheduler()
 
 Size Scheduler::count() const
 {
-    return m_queue.size();
+    return m_queue.count();
 }
 
 Scheduler::Result Scheduler::enqueue(Process *proc, bool ignoreState)
@@ -49,30 +49,26 @@ Scheduler::Result Scheduler::dequeue(Process *proc, bool ignoreState)
         return InvalidArgument;
     }
 
-    Size count = m_queue.size();
-    std::vector<Process> temp;
+    Size count = m_queue.count();
 
     // Traverse the Queue to remove the Process
     for (Size i = 0; i < count; i++)
     {
         Process *p = m_queue.pop();
 
-        if (p == proc) {
-            while(!temp.empty()) m_queue.push(temp.pop_back());
+        if (p == proc)
             return Success;
-        }
         else
-            temp.push(p);
+            m_queue.push(p);
     }
 
-    while(!temp.empty()) m_queue.push(temp.pop_back());
     FATAL("process ID " << proc->getID() << " is not in the schedule");
     return InvalidArgument;
 }
 
 Process * Scheduler::select()
 {
-    if (m_queue.size() > 0)
+    if (m_queue.count() > 0)
     {
         Process *p = m_queue.pop();
         m_queue.push(p);
