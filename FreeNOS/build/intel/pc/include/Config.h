@@ -310,7 +310,7 @@
 #define OBJCOPY "objcopy"
 #define VERSION "1.0.3"
 #define VERSIONCODE 65539
-#define RELEASE "1.0.3-git(900c930)*"
+#define RELEASE "1.0.3-git(2a7ce55)*"
 #define FREENOS 1
 #define COMPILER_VERSION "gcc (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0"
 #define BUILDUSER "vboxuser"
