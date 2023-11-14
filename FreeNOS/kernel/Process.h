@@ -89,12 +89,6 @@ class Process
     virtual ~Process();
 
     /**
-     * Comparison operator overloads.
-     */
-    bool operator>(const Process& other);
-    bool operator<(const Process& other);
-
-    /**
      * Retrieve our ID number.
      *
      * @return Process Identification number.

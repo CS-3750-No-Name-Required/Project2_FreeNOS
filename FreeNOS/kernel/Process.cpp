@@ -58,15 +58,6 @@ Process::~Process()
     }
 }
 
-
-bool Process::operator<(const Process& other) {
-    return this->m_priority < other.getPriority();
-}
-
-bool Process::operator>(const Process& other) {
-    return this->m_priority > other.getPriority();
-}
-
 ProcessID Process::getID() const
 {
     return m_id;
