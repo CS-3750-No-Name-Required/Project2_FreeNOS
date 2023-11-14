@@ -64,7 +64,6 @@ ProcessClient::Result ProcessClient::processInfo(const ProcessID pid,
     {
         return IOError;
     }
-
     // Fill output
     info.command = cmd;
     info.textState = (pid == m_pid ? "Running" : textStates[info.kernelState.state]);

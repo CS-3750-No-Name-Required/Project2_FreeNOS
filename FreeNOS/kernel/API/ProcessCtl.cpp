@@ -63,6 +63,9 @@ API::Result ProcessCtlHandler(const ProcessID procID,
         if (procID == SELF)
             procs->schedule();
         break;
+        //get the priority level from current process 
+    case GetPriority:
+        return (API::Result) procs->current()->getPriority();
 
     case GetPID:
         return (API::Result) procs->current()->getID();
@@ -135,6 +138,7 @@ API::Result ProcessCtlHandler(const ProcessID procID,
         info->id    = proc->getID();
         info->state = proc->getState();
         info->parent = proc->getParent();
+        info->priority = proc->getPriority(); //calls getPriority() from process
         break;
 
     case WaitPID:
@@ -177,8 +181,6 @@ API::Result ProcessCtlHandler(const ProcessID procID,
         if (procs->sleep((const Timer::Info *)addr) == ProcessManager::Success)
             procs->schedule();
         break;
-    }
-
     return API::Success;
 }
 
@@ -199,6 +201,7 @@ Log & operator << (Log &log, ProcessOperation op)
         case EnterSleep: log.append("EnterSleep"); break;
         case Schedule:  log.append("Schedule"); break;
         case Wakeup:    log.append("Wakeup"); break;
+        case GetPriority: log.append("GetPriority"); break;
         default:        log.append("???"); break;
     }
     return log;
