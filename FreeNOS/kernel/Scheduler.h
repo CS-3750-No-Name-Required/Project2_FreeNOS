@@ -90,7 +90,11 @@ class Scheduler
   private:
 
     /** Contains processes ready to run */
-    Queue<Process *, MAX_PROCS> m_queue;
+    Queue<Process *, MAX_PROCS> m_queue_5;
+    Queue<Process *, MAX_PROCS> m_queue_4;
+    Queue<Process *, MAX_PROCS> m_queue_3;
+    Queue<Process *, MAX_PROCS> m_queue_2;
+    Queue<Process *, MAX_PROCS> m_queue_1;
 };
 
 /**
