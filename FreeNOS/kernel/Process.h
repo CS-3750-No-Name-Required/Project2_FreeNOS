@@ -70,7 +70,15 @@ class Process
         Waiting,
         Stopped
     };
-
+/**
+     * Represents the priority levl of the Process
+     */
+    enum Priority
+    {
+        Min = 1,
+        Default = 3,
+        Max = 5
+    };
   public:
 
     /**
@@ -124,7 +132,7 @@ class Process
      *
      * @return Reference to memory shares.
      */
-     uint getPriority() const;
+     Priority getPriority() const;
      
     /**
      * Retrieves the current state.
@@ -281,7 +289,7 @@ class Process
     Size m_wakeups;
     
     /** U8 priority level*/
-    uint m_priority;
+    Priority m_priority;
 
     /**
      * Sleep timer value.

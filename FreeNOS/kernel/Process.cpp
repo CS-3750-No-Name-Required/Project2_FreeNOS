@@ -31,7 +31,7 @@ Process::Process(ProcessID id, Address entry, bool privileged, const MemoryMap &
     m_waitId        = 0;
     m_waitResult    = 0;
     m_wakeups       = 0;
-    m_priority      = 3;
+    m_priority      = Default;
     m_entry         = entry;
     m_privileged    = privileged;
     m_memoryContext = ZERO;
@@ -88,7 +88,7 @@ ProcessShares & Process::getShares()
     return m_shares;
 }
 
-uint Process::getPriority() const
+Process::Priority Process::getPriority() const
 {
     return m_priority;
 }
