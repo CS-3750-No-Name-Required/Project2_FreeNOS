@@ -36,7 +36,7 @@ ProcessList::Result ProcessList::exec()
     const ProcessClient process;
     String out;
     const char *list = arguments().get("list priority levels");
-    if(!strcmp(list,"l")==0){
+    if(arguments().get("list priority levels")){
         out << "ID  PRIORITY  PARENT  USER GROUP STATUS     CMD\r\n";
         for (ProcessID pid = 0; pid < ProcessClient::MaximumProcesses; pid++){
        
@@ -49,7 +49,7 @@ ProcessList::Result ProcessList::exec()
                 // Output a line
                 char line[128];
                 snprintf(line, sizeof(line),
-                        "%3d %9d %7d %4d %5d %10s %32s\r\n",
+                        "%3d %12d %7d %4d %5d %10s %32s\r\n",
                         pid, info.kernelState.priority, info.kernelState.parent,
                         0, 0, *info.textState, *info.command);
                 out << line;
