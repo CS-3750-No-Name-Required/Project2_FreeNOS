@@ -6,6 +6,8 @@
 #include <string.h>
 #include <Process.h>
 #include "Renice.h"
+#include <stdlib.h>
+#include "sys/renice.h"
 
 Renice::Renice(int argc, char **argv)
     : POSIXApplication(argc, argv)
@@ -21,10 +23,30 @@ Renice::~Renice(){}
 
 Renice::Result Renice::exec()
 {
-    //Add renice call code
-    
+    if(arguments().get("priorityFlag")){
+        const ProcessClient process;
+        ProcessID pid = (atoi(arguments().get("PID")));
+        int priorityFlag = (atoi(arguments().get("PRIORITY")));
 
-    // Output the table
-    // write(1, *out, out.length());
-    // return Success;
+        ProcessClient:: Info info;
+        const ProcessClient::Result result = process.processInfo(pid, info);
+
+        // Checking if PID exists
+        if (result != ProcessClient:: Success) {
+            ERROR("PID '" << pid << "' not found")
+            return InvalidArgument;
+        }
+
+        // Checking if the new PID is valid
+        if( priorityFlag > 5 || priorityFlag < 1){
+            ERROR("Failed to set priorit for PID " << pid)
+            return InvalidArgument;
+        }
+
+         //Add renice call code
+        renicepid(pid, priorityFlag, 0, 0);
+        printf("Process %d set to priority %d, from priority %d./n", pid, priorityFlag, info.kernelState.priority);
+    }
+
+    return Success;
 }
