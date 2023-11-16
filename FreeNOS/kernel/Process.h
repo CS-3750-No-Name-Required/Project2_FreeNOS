@@ -59,7 +59,7 @@ class Process
         OutOfMemory,
         WakeupPending
     };
-
+    
     /**
      * Represents the execution state of the Process
      */

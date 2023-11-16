@@ -257,12 +257,12 @@
 #define VERSION_SUFFIX ""
 #define VERSION "1.0.3"
 #define VERSIONCODE 65539
-#define RELEASE "1.0.3-git(2a7ce55)*"
+#define RELEASE "1.0.3-git(9717c64)*"
 #define FREENOS 1
 #define COMPILER_VERSION "gcc (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0"
 #define BUILDUSER "vboxuser"
 #define BUILDHOST "Ubunutu"
-#define BUILDOS "Linux 6.2.0-33-generic"
+#define BUILDOS "Linux 6.2.0-36-generic"
 #define BUILDARCH "x86_64"
 #define BUILDPY "Python 3.10.12"
 #define BUILDER "SCons 4.0.1"
