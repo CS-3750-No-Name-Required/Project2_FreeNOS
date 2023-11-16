@@ -17,6 +17,8 @@ Renice::Renice(int argc, char **argv)
     parser().registerFlag('n', "priorityFlag", "Change priority level");
 }
 
+Renice::~Renice(){}
+
 Renice::Result Renice::exec()
 {
     //Add renice call code
