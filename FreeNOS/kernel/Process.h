@@ -164,6 +164,10 @@ class Process
      */
     bool operator == (Process *proc);
 
+    Priority getPriority() const;
+
+    Result setPriority(int priorityFlag);
+
   protected:
 
     /**

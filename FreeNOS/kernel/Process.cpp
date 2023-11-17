@@ -127,6 +127,11 @@ Process::Result Process::wait(ProcessID id)
     return Success;
 }
 
+Process::Result Process::setPriority(int priorityFlag){
+    m_priority = (Priority) priorityFlag;
+    return Success;
+}
+
 Process::Result Process::join(const uint result)
 {
     if (m_state != Waiting)

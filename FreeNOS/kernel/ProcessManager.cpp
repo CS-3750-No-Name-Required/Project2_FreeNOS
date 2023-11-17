@@ -227,6 +227,19 @@ ProcessManager::Result ProcessManager::wait(Process *proc)
     return dequeueProcess(m_current);
 }
 
+ProcessManager::Result ProcessManager::setPriority(int priorityFlag, Process *proc)
+{
+    if(proc->getState() == Process::Ready){
+        m_sceduler->dequeue(proc, true);
+        proc->setPriority(priorityFlag);
+        m_sceduler->enqueue(proc, false);
+    }
+    else{
+        proc->setPriority(priorityFlag);
+    }
+    return Success;
+}
+
 ProcessManager::Result ProcessManager::stop(Process *proc)
 {
     const Process::State state = proc->getState();
