@@ -132,6 +132,7 @@ class Process
      *
      * @return Reference to memory shares.
      */
+
      
     /**
      * Retrieves the current state.
