@@ -132,7 +132,6 @@ class Process
      *
      * @return Reference to memory shares.
      */
-     Priority getPriority() const;
      
     /**
      * Retrieves the current state.
