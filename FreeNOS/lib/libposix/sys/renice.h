@@ -13,6 +13,7 @@
  * @param options Optional flags.
  * @return C 
  */
+#define WEXITSTATUS(st) (st)
 extern C pid_t renicepid(int priorityFlag, pid_t pid, int *stat_loc, int options);
 
 /**

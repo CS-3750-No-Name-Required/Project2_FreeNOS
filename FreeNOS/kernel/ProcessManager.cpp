@@ -230,9 +230,9 @@ ProcessManager::Result ProcessManager::wait(Process *proc)
 ProcessManager::Result ProcessManager::setPriority(int priorityFlag, Process *proc)
 {
     if(proc->getState() == Process::Ready){
-        m_sceduler->dequeue(proc, true);
+        m_scheduler->dequeue(proc, true);
         proc->setPriority(priorityFlag);
-        m_sceduler->enqueue(proc, false);
+        m_scheduler->enqueue(proc, false);
     }
     else{
         proc->setPriority(priorityFlag);
