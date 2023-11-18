@@ -1,322 +1,266 @@
-/*
- * Copyright (C) 2015 Niek Linnenbank
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+#include <FreeNOS/System.h>
+#include <FreeNOS/API.h>
+#include <MemoryBlock.h>
+#include <MemoryChannel.h>
+#include <SplitAllocator.h>
+#include "Process.h"
+#include "ProcessEvent.h"
 
-#ifndef __KERNEL_PROCESS_H
-#define __KERNEL_PROCESS_H
-
-#include <Types.h>
-#include <Macros.h>
-#include <List.h>
-#include <MemoryMap.h>
-#include <Timer.h>
-#include "ProcessShares.h"
-
-/** @see IPCMessage.h. */
-struct Message;
-class MemoryContext;
-class MemoryChannel;
-struct ProcessEvent;
-class ProcessManager;
-class Scheduler;
-
-/**
- * @addtogroup kernel
- * @{
- */
-
-/**
- * Represents a process which may run on the host.
- */
-class Process
+Process::Process(ProcessID id, Address entry, bool privileged, const MemoryMap &map)
+    : m_id(id), m_map(map), m_shares(id)
 {
-  friend class ProcessManager;
-  friend class Scheduler;
+    m_state         = Stopped;
+    m_parent        = 0;
+    m_waitId        = 0;
+    m_waitResult    = 0;
+    m_priority      = Default;
+    m_wakeups       = 0;
+    m_entry         = entry;
+    m_privileged    = privileged;
+    m_memoryContext = ZERO;
+    m_kernelChannel = ZERO;
+    MemoryBlock::set(&m_sleepTimer, 0, sizeof(m_sleepTimer));
+}
 
-  public:
-
-    /**
-     * Result codes
-     */
-    enum Result
+Process::~Process()
+{
+    if (m_kernelChannel)
     {
-        Success,
-        InvalidArgument,
-        MemoryMapError,
-        OutOfMemory,
-        WakeupPending
-    };
-
-    /**
-     * Represents the execution state of the Process
-     */
-    enum State
-    {
-        Ready,
-        Sleeping,
-        Waiting,
-        Stopped
-    };
-
-    enum Priority {
-      Min = 1,
-      Default = 3,
-      Max = 5
-    };
-
-  public:
-
-    /**
-     * Constructor function.
-     *
-     * @param id Process Identifier
-     * @param entry Initial program counter value.
-     * @param privileged If true, the process has unlimited access to hardware.
-     * @param map Memory map to use
-     */
-    Process(ProcessID id, Address entry, bool privileged, const MemoryMap &map);
-
-    /**
-     * Destructor function.
-     */
-    virtual ~Process();
-
-    /**
-     * Retrieve our ID number.
-     *
-     * @return Process Identification number.
-     */
-    ProcessID getID() const;
-
-    /**
-     * Retrieve our parent ID.
-     *
-     * @return Process ID of our parent.
-     */
-    ProcessID getParent() const;
-
-    /**
-     * Get Wait ID.
-     */
-    ProcessID getWait() const;
-
-    /**
-     * Get wait result
-     */
-    uint getWaitResult() const;
-
-    /**
-     * Get priority level
-     */
-    Priority getPriority();
-
-    /**
-     * Set process priority level
-     */
-    Result setPriority(int priority);
-
-    Process::Result Process::changePriority(Priority priority) {
-      if (priority < Priority::Min || priority > Priority::Max) {
-        return Result::InvalidArgument;
-      }
-
-      m_priority = priority;
-      return Result::Success;
+        delete m_kernelChannel;
     }
 
-    /**
-     * Get process shares.
-     *
-     * @return Reference to memory shares.
-     */
-    ProcessShares & getShares();
+    if (m_memoryContext)
+    {
+        m_memoryContext->releaseSection(m_map.range(MemoryMap::UserData));
+        m_memoryContext->releaseSection(m_map.range(MemoryMap::UserHeap));
+        m_memoryContext->releaseSection(m_map.range(MemoryMap::UserStack));
+        m_memoryContext->releaseSection(m_map.range(MemoryMap::UserPrivate));
+        m_memoryContext->releaseSection(m_map.range(MemoryMap::UserArgs));
+        m_memoryContext->releaseSection(m_map.range(MemoryMap::UserShare), true);
+        delete m_memoryContext;
+    }
+}
 
-    /**
-     * Retrieves the current state.
-     *
-     * @return Current status of the Process.
-     */
-    State getState() const;
+ProcessID Process::getID() const
+{
+    return m_id;
+}
 
-    /**
-     * Get MMU memory context.
-     *
-     * @return MemoryContext pointer.
-     */
-    MemoryContext * getMemoryContext();
+ProcessID Process::getParent() const
+{
+    return m_parent;
+}
 
-    /**
-     * Get privilege.
-     *
-     * @return Privilege of the Process.
-     */
-    bool isPrivileged() const;
+ProcessID Process::getWait() const
+{
+    return m_waitId;
+}
 
-    /**
-     * Compare two processes.
-     *
-     * @param proc Process to compare with.
-     *
-     * @return True if equal, false otherwise.
-     */
-    bool operator == (Process *proc);
+uint Process::getWaitResult() const
+{
+    return m_waitResult;
+}
 
-  protected:
+Process::Priority Process::getPriority() {
+    return m_priority;
+}
 
-    /**
-     * Initialize the Process.
-     *
-     * Allocates various (architecture specific) resources,
-     * creates MMU context and stacks.
-     *
-     * @return Result code
-     */
-    virtual Result initialize();
+Process::Result Process::setPriority(int priority) {
+    if(priority > 5 || priority < 1) {
+        ERROR("Invalid priority level: " << priority);
+        return InvalidArgument;
+    }
 
-    /**
-     * Restart execution at the given entry point.
-     *
-     * @param entry Address to begin execution.
-     */
-    virtual void reset(const Address entry) = 0;
+    m_priority = (Priority) priority;
+    return Success;
+}
 
-    /**
-     * Allow the Process to run on the CPU.
-     *
-     * @param previous The previous Process which ran on the CPU. ZERO if none.
-     */
-    virtual void execute(Process *previous) = 0;
+Process::State Process::getState() const
+{
+    return m_state;
+}
 
-    /**
-     * Prevent process from sleeping.
-     *
-     * @return Result code
-     */
-    Result wakeup();
+ProcessShares & Process::getShares()
+{
+    return m_shares;
+}
 
-    /**
-     * Stops the process for executing until woken up
-     *
-     * @param timer Timer on which the process must be woken up (if expired), or ZERO for no limit
-     * @param ignoreWakeups True to enter Sleep state regardless of pending wakeups
-     *
-     * @return Result code
-     */
-    Result sleep(const Timer::Info *timer, bool ignoreWakeups);
+const Timer::Info & Process::getSleepTimer() const
+{
+    return m_sleepTimer;
+}
 
-    /**
-     * Let Process wait for other Process to terminate.
-     *
-     * @param id Process ID to wait for
-     *
-     * @return Result code
-     */
-    Result wait(ProcessID id);
+MemoryContext * Process::getMemoryContext()
+{
+    return m_memoryContext;
+}
 
-    /**
-     * Complete waiting for another Process.
-     *
-     * @param result Exit code of the other process
-     */
-    virtual Result join(const uint result);
+bool Process::isPrivileged() const
+{
+    return m_privileged;
+}
 
-    /**
-     * Stop execution of this process.
-     *
-     * @return Result code
-     */
-    Result stop();
+void Process::setParent(ProcessID id)
+{
+    m_parent = id;
+}
 
-    /**
-     * Resume execution when this process is stopped.
-     *
-     * @return Result code
-     */
-    Result resume();
+Process::Result Process::wait(ProcessID id)
+{
+    if (m_state != Ready)
+    {
+        ERROR("Process ID " << m_id << " has invalid state: " << (uint) m_state);
+        return InvalidArgument;
+    }
 
-    /**
-     * Raise kernel event
-     *
-     * @return Result code
-     */
-    Result raiseEvent(const struct ProcessEvent *event);
+    m_state  = Waiting;
+    m_waitId = id;
 
-    /**
-     * Get sleep timer.
-     *
-     * @return Sleep timer value.
-     */
-    const Timer::Info & getSleepTimer() const;
+    return Success;
+}
 
-    /**
-     * Set parent process ID.
-     */
-    void setParent(ProcessID id);
+Process::Result Process::join(const uint result)
+{
+    if (m_state != Waiting)
+    {
+        ERROR("PID " << m_id << " has invalid state: " << (uint) m_state);
+        return InvalidArgument;
+    }
 
-  protected:
+    m_waitResult = result;
+    m_state = Ready;
+    return Success;
+}
 
-    /** Process Identifier */
-    const ProcessID m_id;
+Process::Result Process::stop()
+{
+    if (m_state != Ready && m_state != Sleeping && m_state != Stopped)
+    {
+        ERROR("PID " << m_id << " has invalid state: " << (uint) m_state);
+        return InvalidArgument;
+    }
 
-    /** Parent process */
-    ProcessID m_parent;
+    m_state = Stopped;
+    return Success;
+}
 
-    /** Current process status. */
-    State m_state;
+Process::Result Process::resume()
+{
+    if (m_state != Stopped)
+    {
+        ERROR("PID " << m_id << " has invalid state: " << (uint) m_state);
+        return InvalidArgument;
+    }
 
-    /** Waits for exit of this Process. */
-    ProcessID m_waitId;
+    m_state = Ready;
+    return Success;
+}
 
-    /** Wait exit result of the other Process. */
-    uint m_waitResult;
+Process::Result Process::raiseEvent(const ProcessEvent *event)
+{
+    // Write the message. Be sure to flush the caches because
+    // the kernel has mapped the channel pages separately in low memory.
+    m_kernelChannel->write(event);
+    m_kernelChannel->flush();
 
-    /** Priority level*/
-    Priority m_priority;
+    // Wakeup the Process, if needed
+    return wakeup();
+}
 
-    /** Privilege level */
-    bool m_privileged;
+Process::Result Process::initialize()
+{
+    Memory::Range range;
+    Arch::Cache cache;
+    Allocator::Range allocPhys, allocVirt;
 
-    /** Entry point of the program */
-    Address m_entry;
+    // Create new kernel event channel object
+    m_kernelChannel = new MemoryChannel(Channel::Producer, sizeof(ProcessEvent));
+    if (!m_kernelChannel)
+    {
+        ERROR("failed to allocate kernel event channel object");
+        return OutOfMemory;
+    }
 
-    /** Virtual memory layout */
-    MemoryMap m_map;
+    // Allocate two pages for the kernel event channel
+    allocPhys.address = 0;
+    allocPhys.size = PAGESIZE * 2;
+    allocPhys.alignment = PAGESIZE;
 
-    /** MMU memory context */
-    MemoryContext *m_memoryContext;
+    if (Kernel::instance()->getAllocator()->allocate(allocPhys, allocVirt) != Allocator::Success)
+    {
+        ERROR("failed to allocate kernel event channel pages");
+        return OutOfMemory;
+    }
 
-    /** Number of wakeups received */
-    Size m_wakeups;
+    // Initialize pages with zeroes
+    MemoryBlock::set((void *)allocVirt.address, 0, PAGESIZE*2);
+    cache.cleanData(allocVirt.address);
+    cache.cleanData(allocVirt.address + PAGESIZE);
 
-    /**
-     * Sleep timer value.
-     * If non-zero, set the process in the Ready state
-     * when the System timer is greater than this value.
-     */
-    Timer::Info m_sleepTimer;
+    // Map data and feedback pages in userspace
+    range.phys   = allocPhys.address;
+    range.access = Memory::User | Memory::Readable;
+    range.size   = PAGESIZE * 2;
+    m_memoryContext->findFree(range.size, MemoryMap::UserShare, &range.virt);
+    m_memoryContext->mapRangeContiguous(&range);
 
-    /** Contains virtual memory shares between this process and others. */
-    ProcessShares m_shares;
+    // Remap the feedback page with write permissions
+    m_memoryContext->unmap(range.virt + PAGESIZE);
+    m_memoryContext->map(range.virt + PAGESIZE,
+                         range.phys + PAGESIZE, Memory::User | Memory::Readable | Memory::Writable);
 
-    /** Channel for sending kernel events to the Process */
-    MemoryChannel *m_kernelChannel;
-};
+    // Create shares entry
+    m_shares.setMemoryContext(m_memoryContext);
+    m_shares.createShare(KERNEL_PID, Kernel::instance()->getCoreInfo()->coreId, 0, range.virt, range.size);
 
-/**
- * @}
- */
+    // Setup the kernel event channel
+    m_kernelChannel->setVirtual(allocVirt.address, allocVirt.address + PAGESIZE);
 
-#endif /* __KERNEL_PROCESS_H */
+    return Success;
+}
+
+Process::Result Process::wakeup()
+{
+    // This process might be just about to call sleep().
+    // When another process is asking to wakeup this Process
+    // such that it can receive an IPC message, we must guarantee
+    // that the next sleep will be skipped.
+    m_wakeups++;
+
+    if (m_state == Sleeping)
+    {
+        m_state = Ready;
+        MemoryBlock::set(&m_sleepTimer, 0, sizeof(m_sleepTimer));
+        return Success;
+    }
+    else
+    {
+        return WakeupPending;
+    }
+}
+
+Process::Result Process::sleep(const Timer::Info *timer, bool ignoreWakeups)
+{
+    if (m_state != Ready)
+    {
+        ERROR("PID " << m_id << " has invalid state: " << (uint) m_state);
+        return InvalidArgument;
+    }
+
+    if (!m_wakeups || ignoreWakeups)
+    {
+        m_state = Sleeping;
+
+        if (timer)
+            MemoryBlock::copy(&m_sleepTimer, timer, sizeof(m_sleepTimer));
+
+        return Success;
+    }
+    m_wakeups = 0;
+    return WakeupPending;
+}
+
+bool Process::operator==(Process *proc)
+{
+    return proc->getID() == m_id;
+}
