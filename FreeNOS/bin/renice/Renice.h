@@ -1,7 +1,5 @@
-// similar to ProcessList.h
-
-#ifndef __BIN_PS_PROCESSLIST_H
-#define __BIN_PS_PROCESSLIST_H
+#ifndef __BIN_RENICE_RENICE_H
+#define __BIN_RENICE_RENICE_H
 
 #include <POSIXApplication.h>
 
@@ -11,36 +9,34 @@
  */
 
 /**
- * Output the system process list.
+ * Change the scheduling priority of a process.
  */
-class Renice : public POSIXApplication
-{
-  public:
+class Renice : public POSIXApplication {
+    public:
 
-    /**
-     * Constructor
-     *
-     * @param argc Argument count
-     * @param argv Argument values
-     */
-    Renice (int argc, char **argv);
+        /**
+         * Constructor
+         *
+         * @param argc Argument count
+         * @param argv Argument values
+         */
+        Renice(int argc, char **argv);
 
-    /**
-     * Destructor
-    */
-    virtual ~Renice();
+        /**
+         * Destructor
+         */
+        virtual ~Renice();
 
-    /**
-     * Execute the application.
-     *
-     * @return Result code
-     */
-    virtual Result exec();
-    
+        /**
+         * Execute the application.
+         *
+         * @return Result code
+         */
+        virtual Result exec();
 };
 
 /**
  * @}
  */
 
-#endif /* __BIN_PS_PROCESSLIST_H */
+#endif /* __BIN_RENICE_RENICE_H */

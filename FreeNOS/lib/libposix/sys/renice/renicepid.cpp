@@ -3,9 +3,9 @@
 #include "sys/types.h"
 #include <errno.h>
 
-pid_t renicepid(int priorityFlag, pid_t pid, int *stat_loc, int options)
+pid_t renicepid(pid_t pid, int priority, int *stat_loc, int options)
 {
-    const ulong result = (ulong) ProcessCtl(pid, RenicePID, priorityFlag);
+    const ulong result = (ulong) ProcessCtl(pid, RenicePID, priority);
 
     switch ((const API::Result) (result & 0xffff))
     {

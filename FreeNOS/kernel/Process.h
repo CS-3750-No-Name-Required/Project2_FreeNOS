@@ -59,7 +59,7 @@ class Process
         OutOfMemory,
         WakeupPending
     };
-    
+
     /**
      * Represents the execution state of the Process
      */
@@ -70,15 +70,13 @@ class Process
         Waiting,
         Stopped
     };
-/**
-     * Represents the priority levl of the Process
-     */
-    enum Priority
-    {
-        Min = 1,
-        Default = 3,
-        Max = 5
+
+    enum Priority {
+      Min = 1,
+      Default = 3,
+      Max = 5
     };
+
   public:
 
     /**
@@ -121,19 +119,22 @@ class Process
     uint getWaitResult() const;
 
     /**
-     * Get process shares.
-     *
-     * @return Reference to memory shares.
+     * Get priority level
      */
-    ProcessShares & getShares();
-    
+    Priority getPriority();
+
+    /**
+     * Set process priority level
+     */
+    Result setPriority(int priority);
+
     /**
      * Get process shares.
      *
      * @return Reference to memory shares.
      */
+    ProcessShares & getShares();
 
-     
     /**
      * Retrieves the current state.
      *
@@ -163,10 +164,6 @@ class Process
      * @return True if equal, false otherwise.
      */
     bool operator == (Process *proc);
-
-    Priority getPriority() const;
-
-    Result setPriority(int priorityFlag);
 
   protected:
 
@@ -277,6 +274,9 @@ class Process
     /** Wait exit result of the other Process. */
     uint m_waitResult;
 
+    /** Priority level*/
+    Priority m_priority;
+
     /** Privilege level */
     bool m_privileged;
 
@@ -291,9 +291,6 @@ class Process
 
     /** Number of wakeups received */
     Size m_wakeups;
-    
-    /** U8 priority level*/
-    Priority m_priority;
 
     /**
      * Sleep timer value.
