@@ -71,6 +71,13 @@ class Process
         Stopped
     };
 
+    enum Priority //following State structure
+    {
+        low = 1,
+        def = 3,
+        high = 5
+    };
+
   public:
 
     /**
@@ -148,6 +155,10 @@ class Process
      * @return True if equal, false otherwise.
      */
     bool operator == (Process *proc);
+
+    Priority getPriority() const; //following State and getState() structure
+    
+    Result setPriority(int level);
 
   protected:
 
@@ -285,6 +296,8 @@ class Process
 
     /** Channel for sending kernel events to the Process */
     MemoryChannel *m_kernelChannel;
+
+    Priority m_priority;
 };
 
 /**

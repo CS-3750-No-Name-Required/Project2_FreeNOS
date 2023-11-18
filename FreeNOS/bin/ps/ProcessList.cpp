@@ -26,6 +26,7 @@ ProcessList::ProcessList(int argc, char **argv)
     : POSIXApplication(argc, argv)
 {
     parser().setDescription("Output system process list");
+    parser().registerFlag('l', "level", "displays priority level"); //using flag format from ListFiles as a reference
 }
 
 ProcessList::Result ProcessList::exec()
@@ -34,8 +35,13 @@ ProcessList::Result ProcessList::exec()
     String out;
 
     // Print header
-    out << "ID  PARENT  USER GROUP STATUS     CMD\r\n";
-
+    if(arguments().get("level")){ //also using ListFiles format, used "long" flag as an example
+    	out << "ID LEVEL PARENT  USER GROUP STATUS     CMD\r\n";
+    }
+    
+    else { //if no flag do default output
+    	out << "ID  PARENT  USER GROUP STATUS     CMD\r\n";
+    }
     // Loop processes
     for (ProcessID pid = 0; pid < ProcessClient::MaximumProcesses; pid++)
     {
@@ -46,6 +52,17 @@ ProcessList::Result ProcessList::exec()
         {
             DEBUG("PID " << pid << " state = " << *info.textState);
 
+            if(arguments().get("level")){ //following the same structure as before
+            // Output a line
+            //we also need to add the kernel state
+            char line[128];
+            snprintf(line, sizeof(line),
+                    "%2d %5d %7d %4d %5d %10s %32s\r\n",
+                     pid, info.kernelState.level, info.kernelState.parent,
+                     0, 0, *info.textState, *info.command);
+            out << line;
+            }
+            else {
             // Output a line
             char line[128];
             snprintf(line, sizeof(line),
@@ -53,8 +70,11 @@ ProcessList::Result ProcessList::exec()
                      pid, info.kernelState.parent,
                      0, 0, *info.textState, *info.command);
             out << line;
-        }
-    }
+            		 }
+	        }
+	}
+        
+ 
 
     // Output the table
     write(1, *out, out.length());
