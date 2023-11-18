@@ -128,6 +128,15 @@ class Process
      */
     Result setPriority(int priority);
 
+    Process::Result Process::changePriority(Priority priority) {
+      if (priority < Priority::Min || priority > Priority::Max) {
+        return Result::InvalidArgument;
+      }
+
+      m_priority = priority;
+      return Result::Success;
+    }
+
     /**
      * Get process shares.
      *

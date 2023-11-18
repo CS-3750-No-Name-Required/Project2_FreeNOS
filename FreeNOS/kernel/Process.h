@@ -128,6 +128,8 @@ class Process
      */
     Result setPriority(int priority);
 
+    Result changePriority(Priority priority);
+
     /**
      * Get process shares.
      *
