@@ -142,7 +142,7 @@ API::Result ProcessCtlHandler(const ProcessID procID,
         break;
 
     case RenicePID:
-        proc->changePriority(proc, addr);
+        procs->changePriority(proc, addr);
         procs->schedule();
         break;
 
