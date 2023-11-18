@@ -8,5 +8,5 @@
 
  ## Project 3: Priortize it
 
- Youtube Link: 
+ Youtube Link: https://youtu.be/cphIsOSGVt8
 
