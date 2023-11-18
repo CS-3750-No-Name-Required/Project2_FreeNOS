@@ -69,7 +69,10 @@ API::Result ProcessCtlHandler(const ProcessID procID,
 
     case GetParent:
         return (API::Result) procs->current()->getParent();
-
+        
+    case GetPriority:
+        return (API::Result) procs->current()->getPriority();
+    
     case Schedule:
         procs->schedule();
         break;
@@ -135,6 +138,12 @@ API::Result ProcessCtlHandler(const ProcessID procID,
         info->id    = proc->getID();
         info->state = proc->getState();
         info->parent = proc->getParent();
+        info->priority = proc->getPriority();
+        break;
+
+    case RenicePID:
+        procs->changePriority(proc, addr);
+        procs->schedule();
         break;
 
     case WaitPID:
@@ -178,7 +187,6 @@ API::Result ProcessCtlHandler(const ProcessID procID,
             procs->schedule();
         break;
     }
-
     return API::Success;
 }
 
@@ -190,6 +198,8 @@ Log & operator << (Log &log, ProcessOperation op)
         case KillPID:   log.append("KillPID"); break;
         case GetPID:    log.append("GetPID"); break;
         case GetParent: log.append("GetParent"); break;
+        case GetPriority: log.append("GetPriority"); break;
+        case RenicePID: log.append("RenicePID"); break;
         case WatchIRQ:  log.append("WatchIRQ"); break;
         case EnableIRQ: log.append("EnableIRQ"); break;
         case DisableIRQ:log.append("DisableIRQ"); break;

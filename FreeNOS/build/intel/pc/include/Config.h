@@ -249,7 +249,7 @@
 #define QEMU "qemu-system-i386"
 #define QEMUCMD "${QEMU} ${QEMUFLAGS}"
 #define QEMUFLAGS "-smp 4 -m 256"
-#define SESSION_MANAGER "local/Ubunutu:@/tmp/.ICE-unix/1469,unix/Ubunutu:/tmp/.ICE-unix/1469"
+#define SESSION_MANAGER "local/Ubunutu:@/tmp/.ICE-unix/1480,unix/Ubunutu:/tmp/.ICE-unix/1480"
 #define QT_ACCESSIBILITY 1
 #define COLORTERM "truecolor"
 #define XDG_CONFIG_DIRS "/etc/xdg/xdg-ubuntu:/etc/xdg"
@@ -264,8 +264,8 @@
 #define LOGNAME "vboxuser"
 #define XDG_SESSION_DESKTOP "ubuntu"
 #define XDG_SESSION_TYPE "wayland"
-#define SYSTEMD_EXEC_PID 1498
-#define XAUTHORITY "/run/user/1000/.mutter-Xwaylandauth.CMEZB2"
+#define SYSTEMD_EXEC_PID 1511
+#define XAUTHORITY "/run/user/1000/.mutter-Xwaylandauth.9ZQFE2"
 #define HOME "/home/vboxuser"
 #define USERNAME "vboxuser"
 #define IM_CONFIG_PHASE 1
@@ -274,14 +274,14 @@
 #define XDG_CURRENT_DESKTOP "ubuntu:GNOME"
 #define VTE_VERSION 6800
 #define WAYLAND_DISPLAY "wayland-0"
-#define GNOME_TERMINAL_SCREEN "/org/gnome/Terminal/screen/1a878a20_e9c4_449e_aecd_89f74020038e"
+#define GNOME_TERMINAL_SCREEN "/org/gnome/Terminal/screen/89a85b23_73df_443c_be0b_5b0600d77baa"
 #define GNOME_SETUP_DISPLAY ":1"
 #define LESSCLOSE "/usr/bin/lesspipe %s %s"
 #define XDG_SESSION_CLASS "user"
 #define TERM "xterm-256color"
 #define LESSOPEN "| /usr/bin/lesspipe %s"
 #define USER "vboxuser"
-#define GNOME_TERMINAL_SERVICE ":1.117"
+#define GNOME_TERMINAL_SERVICE ":1.134"
 #define DISPLAY ":0"
 #define SHLVL 1
 #define QT_IM_MODULE "ibus"
@@ -310,12 +310,12 @@
 #define OBJCOPY "objcopy"
 #define VERSION "1.0.3"
 #define VERSIONCODE 65539
-#define RELEASE "1.0.3-git(0feceac)*"
+#define RELEASE "1.0.3-git(6a6d3e2)*"
 #define FREENOS 1
 #define COMPILER_VERSION "gcc (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0"
 #define BUILDUSER "vboxuser"
 #define BUILDHOST "Ubunutu"
-#define BUILDOS "Linux 6.2.0-33-generic"
+#define BUILDOS "Linux 6.2.0-36-generic"
 #define BUILDARCH "x86_64"
 #define BUILDPY "Python 3.10.12"
 #define BUILDER "SCons 4.0.1"
